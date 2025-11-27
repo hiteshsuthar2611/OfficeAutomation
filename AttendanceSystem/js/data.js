@@ -87,7 +87,8 @@ const DataStore = {
     
     addUser: function(user) {
         const users = this.getUsers();
-        user.id = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+        const validIds = users.map(u => u.id).filter(id => typeof id === 'number' && !isNaN(id));
+        user.id = validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
         user.isActive = true;
         users.push(user);
         localStorage.setItem('uas_users', JSON.stringify(users));
@@ -123,7 +124,8 @@ const DataStore = {
     
     addCourse: function(course) {
         const courses = this.getCourses();
-        course.id = courses.length > 0 ? Math.max(...courses.map(c => c.id)) + 1 : 1;
+        const validIds = courses.map(c => c.id).filter(id => typeof id === 'number' && !isNaN(id));
+        course.id = validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
         course.enrolled = course.enrolled || [];
         courses.push(course);
         localStorage.setItem('uas_courses', JSON.stringify(courses));
@@ -169,7 +171,8 @@ const DataStore = {
     
     addAttendance: function(record) {
         const attendance = this.getAttendance();
-        record.id = attendance.length > 0 ? Math.max(...attendance.map(a => a.id)) + 1 : 1;
+        const validIds = attendance.map(a => a.id).filter(id => typeof id === 'number' && !isNaN(id));
+        record.id = validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
         attendance.push(record);
         localStorage.setItem('uas_attendance', JSON.stringify(attendance));
         return record;

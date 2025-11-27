@@ -160,6 +160,58 @@ function setupEventListeners() {
         e.preventDefault();
         generateReport();
     });
+    
+    // Quick action buttons - use event delegation
+    document.querySelector('.quick-actions')?.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-navigate]');
+        if (btn) {
+            navigateTo(btn.dataset.navigate);
+        }
+    });
+    
+    // Filter records button
+    document.getElementById('filterRecordsBtn')?.addEventListener('click', filterRecords);
+    
+    // Export report button
+    document.getElementById('exportReportBtn')?.addEventListener('click', exportReport);
+    
+    // Add user button
+    document.getElementById('addUserBtn')?.addEventListener('click', showAddUserModal);
+    
+    // Add course button
+    document.getElementById('addCourseBtn')?.addEventListener('click', showAddCourseModal);
+    
+    // Event delegation for table action buttons
+    document.addEventListener('click', function(e) {
+        const target = e.target;
+        
+        // Handle view/edit/delete buttons in tables
+        if (target.classList.contains('btn-view') && target.dataset.recordId) {
+            viewRecord(parseInt(target.dataset.recordId));
+        } else if (target.classList.contains('btn-edit')) {
+            if (target.dataset.recordId) {
+                editRecord(parseInt(target.dataset.recordId));
+            } else if (target.dataset.userId) {
+                editUser(parseInt(target.dataset.userId));
+            } else if (target.dataset.courseId) {
+                editCourse(parseInt(target.dataset.courseId));
+            }
+        } else if (target.classList.contains('btn-delete')) {
+            if (target.dataset.userId) {
+                deleteUser(parseInt(target.dataset.userId));
+            } else if (target.dataset.courseId) {
+                deleteCourse(parseInt(target.dataset.courseId));
+            }
+        }
+        
+        // Modal close buttons
+        if (target.classList.contains('close-btn')) {
+            const modal = target.closest('.modal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+    });
 }
 
 // Dashboard Functions
@@ -291,7 +343,7 @@ function loadRecords() {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${record.id}</td>
-                <td>${user.name}</td>
+                <td>${escapeHtml(user.name)}</td>
                 <td>${capitalizeFirst(user.role)}</td>
                 <td>${formatDate(record.date)}</td>
                 <td>${record.checkIn || '-'}</td>
@@ -299,8 +351,8 @@ function loadRecords() {
                 <td><span class="status-badge status-${record.status}">${capitalizeFirst(record.status)}</span></td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn-view" onclick="viewRecord(${record.id})">View</button>
-                        ${currentUser.role === 'dean' ? `<button class="btn-edit" onclick="editRecord(${record.id})">Edit</button>` : ''}
+                        <button class="btn-view" data-record-id="${record.id}">View</button>
+                        ${currentUser.role === 'dean' ? `<button class="btn-edit" data-record-id="${record.id}">Edit</button>` : ''}
                     </div>
                 </td>
             `;
@@ -338,7 +390,7 @@ function filterRecords() {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${record.id}</td>
-                <td>${user.name}</td>
+                <td>${escapeHtml(user.name)}</td>
                 <td>${capitalizeFirst(user.role)}</td>
                 <td>${formatDate(record.date)}</td>
                 <td>${record.checkIn || '-'}</td>
@@ -346,7 +398,7 @@ function filterRecords() {
                 <td><span class="status-badge status-${record.status}">${capitalizeFirst(record.status)}</span></td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn-view" onclick="viewRecord(${record.id})">View</button>
+                        <button class="btn-view" data-record-id="${record.id}">View</button>
                     </div>
                 </td>
             `;
@@ -438,15 +490,15 @@ function loadUsers() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${user.id}</td>
-            <td>${user.name}</td>
-            <td>${user.email}</td>
+            <td>${escapeHtml(user.name)}</td>
+            <td>${escapeHtml(user.email)}</td>
             <td>${capitalizeFirst(user.role)}</td>
-            <td>${user.department || '-'}</td>
+            <td>${escapeHtml(user.department || '-')}</td>
             <td><span class="status-badge ${user.isActive ? 'status-present' : 'status-absent'}">${user.isActive ? 'Active' : 'Inactive'}</span></td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn-edit" onclick="editUser(${user.id})">Edit</button>
-                    <button class="btn-delete" onclick="deleteUser(${user.id})">Delete</button>
+                    <button class="btn-edit" data-user-id="${user.id}">Edit</button>
+                    <button class="btn-delete" data-user-id="${user.id}">Delete</button>
                 </div>
             </td>
         `;
@@ -501,16 +553,16 @@ function loadCourses() {
         const faculty = DataStore.getUserById(course.facultyId);
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${course.code}</td>
-            <td>${course.name}</td>
-            <td>${course.department || '-'}</td>
-            <td>${faculty ? faculty.name : '-'}</td>
+            <td>${escapeHtml(course.code)}</td>
+            <td>${escapeHtml(course.name)}</td>
+            <td>${escapeHtml(course.department || '-')}</td>
+            <td>${faculty ? escapeHtml(faculty.name) : '-'}</td>
             <td>${course.credits}</td>
             <td>${course.enrolled ? course.enrolled.length : 0}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn-edit" onclick="editCourse(${course.id})">Edit</button>
-                    <button class="btn-delete" onclick="deleteCourse(${course.id})">Delete</button>
+                    <button class="btn-edit" data-course-id="${course.id}">Edit</button>
+                    <button class="btn-delete" data-course-id="${course.id}">Delete</button>
                 </div>
             </td>
         `;
@@ -521,7 +573,7 @@ function loadCourses() {
     const facultySelect = document.getElementById('courseFaculty');
     facultySelect.innerHTML = '<option value="">Select Faculty</option>';
     DataStore.getUsersByRole('faculty').forEach(f => {
-        facultySelect.innerHTML += `<option value="${f.id}">${f.name}</option>`;
+        facultySelect.innerHTML += `<option value="${f.id}">${escapeHtml(f.name)}</option>`;
     });
 }
 
@@ -596,6 +648,13 @@ function formatDate(dateStr) {
         month: 'short',
         day: 'numeric'
     });
+}
+
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Close modals when clicking outside

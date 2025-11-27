@@ -127,15 +127,15 @@
                         </div>
                         <div class="card-body">
                             <div class="quick-actions">
-                                <button class="action-btn" onclick="navigateTo('attendance')">
+                                <button class="action-btn" data-navigate="attendance">
                                     <span>✅</span>
                                     <span>Mark Attendance</span>
                                 </button>
-                                <button class="action-btn" onclick="navigateTo('records')">
+                                <button class="action-btn" data-navigate="records">
                                     <span>📋</span>
                                     <span>View Records</span>
                                 </button>
-                                <button class="action-btn" onclick="navigateTo('reports')">
+                                <button class="action-btn" data-navigate="reports">
                                     <span>📈</span>
                                     <span>Generate Report</span>
                                 </button>
@@ -190,7 +190,7 @@
                                 <option value="faculty">Faculty</option>
                                 <option value="staff">Staff</option>
                             </select>
-                            <button class="btn btn-secondary" onclick="filterRecords()">Filter</button>
+                            <button class="btn btn-secondary" id="filterRecordsBtn">Filter</button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -280,7 +280,7 @@
                                     <span class="stat-value" id="reportRate">0%</span>
                                 </div>
                             </div>
-                            <button class="btn btn-secondary" onclick="exportReport()">Export as CSV</button>
+                            <button class="btn btn-secondary" id="exportReportBtn">Export as CSV</button>
                         </div>
                     </div>
                 </div>
@@ -291,7 +291,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3>Manage Users</h3>
-                        <button class="btn btn-primary" onclick="showAddUserModal()">Add User</button>
+                        <button class="btn btn-primary" id="addUserBtn">Add User</button>
                     </div>
                     <div class="card-body">
                         <table class="data-table" id="usersTable">
@@ -319,7 +319,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3>Manage Courses</h3>
-                        <button class="btn btn-primary" onclick="showAddCourseModal()">Add Course</button>
+                        <button class="btn btn-primary" id="addCourseBtn">Add Course</button>
                     </div>
                     <div class="card-body">
                         <table class="data-table" id="coursesTable">

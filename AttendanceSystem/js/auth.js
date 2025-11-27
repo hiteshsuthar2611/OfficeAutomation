@@ -49,10 +49,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Redirect to dashboard
             window.location.href = 'dashboard.html';
         } else {
-            // Check against stored users (simplified auth)
+            // Check against stored users (simplified auth - exact match required)
             const users = DataStore.getUsers();
             const user = users.find(u => 
-                u.email.toLowerCase().includes(username.toLowerCase()) && 
+                u.email.toLowerCase() === username.toLowerCase() && 
                 u.role === role
             );
             
